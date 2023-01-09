@@ -13,6 +13,7 @@
 // #include "DeltaRobotData.h"
 #define SENSOR_PIN 7
 #define VACUUM_PIN 6
+#define W5500_SELECT_PIN 10
 
 byte rcvBuffer[10];
 // legacy
@@ -40,8 +41,8 @@ IPAddress ipW5500(192, 168, 0, 15);  // IP address van de W5500
 EthernetClient clientW5500;
 
 // --PLC
-IPAddress ipPLCserver(192, 168, 0, 11);  // IP address van de server (PLC)
-int serverPoort = 2000;                  // Poortnummer van de server (PLC)
+IPAddress ipPlcServer(192, 168, 0, 11);  // IP address van de server (PLC)
+int serverPort = 2000;                  // Poortnummer van de server (PLC)
 
 String getSerialBuffer() {
   String buffer;
@@ -76,7 +77,7 @@ void checkConnection() {
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
       Serial.println("HW not found.");
       Serial.println("Send 'r' to retry");
-      if (!!waitForCmdInSerial("r")) {
+      if (waitForCmdInSerial("r")) {
         connected = 1;
       }
       continue;
@@ -91,16 +92,19 @@ void checkConnection() {
       continue;
     }
 
-    delay(1000);  // give the Ethernet shield a second to initialize
+    // give the Ethernet shield a second to initialize
+    delay(1000);
+
     Serial.println("connecting...");
-    int errorCode = clientW5500.connect(ipPLCserver, serverPoort);
+    int errorCode = clientW5500.connect(ipPlcServer, serverPort);
     if (errorCode) {
-      Serial.println("connected");  // to server
+      Serial.println("connected");
       break;
     } else {
-      Serial.println("connection failed");  // no connection to server
-      Serial.print("Error code: ");         // no connection to server
-      Serial.println(errorCode);            // no connection to server
+      // no connection to server
+      Serial.println("connection failed");
+      Serial.print("Error code: ");
+      Serial.println(errorCode);
       delay(500);
       Serial.println("Send 'r' to retry");
       if (!waitForCmdInSerial("r")) {
@@ -133,7 +137,7 @@ void setup() {
   syncTCPBuffer_legacy();
 
   // Setup W5500
-  Ethernet.init(10);             // SPI-CS: Chip Select op pen 10
+  Ethernet.init(W5500_SELECT_PIN);
   Ethernet.begin(mac, ipW5500);  // start the Ethernet connection
   pinMode(SENSOR_PIN, INPUT);
   pinMode(VACUUM_PIN, OUTPUT);
@@ -175,8 +179,6 @@ void printTcpBuffer_legacy() {
 
 void updateData_legacy() {
   vacuum = digitalRead(SENSOR_PIN);
-  // Serial.print("Vacuum: ");
-  // Serial.println(vacuum);
   integ++;
 }
 
