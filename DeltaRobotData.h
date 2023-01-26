@@ -5,7 +5,7 @@
 #define BUFFER_SIZE sizeof(delta_robot_data_t)
 
 typedef struct delta_robot_data_t {
-    bool isTrue;
+    bool vacuum;
     int intNumber;
     float floatNumber;
     char string[STRING_LENGTH];
@@ -29,7 +29,7 @@ byte* DeltaRobotData::getLittleEndian()
 {
     byte* p_pointer[BUFFER_SIZE];
     // Zet adres van eerste byte van variabele in een byte-pointer
-    byte* p_b = (byte*)&data.isTrue;
+    byte* p_b = (byte*)&data.vacuum;
     byte* p_i = (byte*)&data.intNumber;
     byte* p_f = (byte*)&data.floatNumber;
     byte* p_c = (byte*)&data.string;

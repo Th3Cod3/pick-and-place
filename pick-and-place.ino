@@ -11,8 +11,9 @@
 #include <Ethernet.h>
 #include <SPI.h>
 // #include "DeltaRobotData.h"
-#define SENSOR_PIN 7
-#define VACUUM_PIN 6
+#define SENSOR_PIN 6
+#define VACUUM_PIN 7
+#define CILINDER_PIN 2
 #define W5500_SELECT_PIN 10
 
 byte rcvBuffer[10];
@@ -133,14 +134,27 @@ void startCommand() {
 void setup() {
   Serial.begin(115200);
   // startCommand();
+  pinMode(SENSOR_PIN, INPUT);
+  pinMode(VACUUM_PIN, OUTPUT);
+  pinMode(CILINDER_PIN, OUTPUT);
+  // int statusLed = 0;
+  // while(1) {
+  //   statusLed = !statusLed;
+  //   if (statusLed) {
+  //     digitalWrite(VACUUM_PIN, HIGH);
+  //     digitalWrite(CILINDER_PIN, HIGH);
+  //   } else {
+  //     digitalWrite(CILINDER_PIN, LOW);
+  //     digitalWrite(VACUUM_PIN, LOW);
+  //   }
+  //   delay(1500);
+  // }
 
   syncTCPBuffer_legacy();
 
   // Setup W5500
   Ethernet.init(W5500_SELECT_PIN);
   Ethernet.begin(mac, ipW5500);  // start the Ethernet connection
-  pinMode(SENSOR_PIN, INPUT);
-  pinMode(VACUUM_PIN, OUTPUT);
 }
 
 void loop() {
@@ -155,7 +169,7 @@ void loop() {
   if (clientW5500.connected()) {
     clientW5500.write(tcpBuffer, sizeof tcpBuffer);
   }
-  delay(4);
+  delay(20);
   int i = 0;
   while (clientW5500.available()) {
     rcvBuffer[i] = clientW5500.read();
